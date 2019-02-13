@@ -60,6 +60,7 @@ class FirebaseHelper {
     func signOut()  {
         do {
             try Auth.auth().signOut() // je l'invoque dans mon appdelegate didfinishLauching pour les tests
+            
         } catch {
             print(error.localizedDescription)
         }
@@ -131,4 +132,60 @@ class FirebaseHelper {
         }
     }
 
+    func saveQuestion(_ string: String) {
+        guard let id = connecte() else { return }
+        let dict: [String:String] = [
+            "userId": id,
+            "questionString": string,
+            "date": Date().toString()
+        ]
+        _databaseQuestion.childByAutoId().updateChildValues(dict)
+    }
+
+    func getQuestion(completion: ((Question)-> Void)?) {
+        _databaseQuestion.observe(.childAdded) { (data) in
+            if let dict = data.value as? [String:String] {
+                if let date = dict["date"] {
+                    if let userId = dict["userId"] {
+                        if let str = dict["questionString"] {
+                            let new = Question(ref: data.ref, id: data.key, date: date, userId: userId, questionString: str)
+                            completion?(new) 
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func saveAnswer(ref: DatabaseReference, texte: String?, image: String?, height: CGFloat?) {
+        guard let id = connecte() else { return }
+        var dict: [String:Any] = [
+            "userId": id,
+            "date": Date().toString()
+        ]
+        if texte != nil {
+            dict["texte"] = texte
+        }
+
+        if image != nil {
+            dict["imageUrl"] = image
+        }
+
+        if height != nil {
+            dict["height"] = height
+        }
+
+        ref.child("answer").childByAutoId().updateChildValues(dict) // envoi sur firebase
+    }
+
+    func getAnswer(ref: DatabaseReference, completion: ((Answer) -> Void)?) {
+        ref.child("answers").observe(.childAdded) { (data) in
+            if let dict = data.value as? [String:Any] {
+                if let userId = dict["userId"] as? String {
+                    let answer = Answer(userId: userId, data: data)
+                    completion?(answer)
+                }
+            }
+        }
+    }
 }

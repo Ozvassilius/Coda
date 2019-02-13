@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension String {
     func extractURLs() -> [URL] {
@@ -72,7 +73,27 @@ extension String {
 
 
         return "A l'instant"
-    }    
+    }
+
+    func height(_ width: CGFloat , font: UIFont) -> CGFloat {
+        
+        let size = CGSize(width: width, height: .greatestFiniteMagnitude)
+        let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
+        let boundingBox = NSString(string: self).boundingRect(with: size, options: options, attributes: [.font:font], context: nil)
+        return boundingBox.height
+
+    }
+}
+
+extension Date {
+
+    func toString() -> String {
+        let formatteur = DateFormatter()
+        formatteur.dateFormat = DATE_FORMAT
+        formatteur.locale = Locale(identifier: LOCALE)
+
+        return formatteur.string(from: self)
+    }
 }
 
 

@@ -56,6 +56,8 @@ class ProfileController: MoveableController {
                 FirebaseHelper().updateUser(user.id, dict: ["username":self.usernameTF.text!])
                 dismiss(animated: true, completion: nil)
             }
+        } else {
+            dismiss(animated: true, completion: nil)
         }
 
     }

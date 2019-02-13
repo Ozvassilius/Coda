@@ -54,6 +54,7 @@ class MenuController: MenuViewController {
         } else {
             // on a pas d'utilisateur
             self.beeUser = nil
+            self.profileIV.image = UIImage(named: "bumble")
             logButton.setTitle("se connecter", for: .normal)
             usernameLbl.text = ""
         }
@@ -103,10 +104,19 @@ extension MenuController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let main = menuContainerViewController {
-            main.selectContentViewController(main.contentViewControllers[indexPath.row])
-            main.hideSideMenu()
+
+        // si on veut acceder au forum mais que l'on est pas connecté
+        if items[indexPath.row] == "Forum", FirebaseHelper().connecte() == nil {
+            AlerteHelper().erreurSimple(self, message: "Vous devez etre connecté pour acceder au forum")
+
+        } else { // si on est connecté
+            if let main = menuContainerViewController {
+                main.selectContentViewController(main.contentViewControllers[indexPath.row])
+                main.hideSideMenu()
+            }
         }
+
+
     }
 
 }

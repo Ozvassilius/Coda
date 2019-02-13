@@ -40,7 +40,17 @@ class MenuController: MenuViewController {
         if let id = FirebaseHelper().connecte() {
             // utilisateur connecté
             // donc recupérer beeUser
-            logButton.setTitle("Profil", for: .normal)
+            FirebaseHelper().getUser(id) { (bee) in
+                DispatchQueue.main.async {
+                    self.beeUser = bee
+                    if self.beeUser != nil {
+                        self.profileIV.download(string: self.beeUser!.imageUrl)
+                        self.usernameLbl.text = self.beeUser?.username
+                        self.logButton.setTitle("Profil", for: .normal)
+                    }
+                }
+            }
+
         } else {
             // on a pas d'utilisateur
             logButton.setTitle("se connecter", for: .normal)

@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = RootController()
 
         FirebaseApp.configure()
+        // FirebaseHelper().signOut() pour test
         return true
     }
 

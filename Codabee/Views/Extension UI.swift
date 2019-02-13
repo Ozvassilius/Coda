@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 extension UITableView {
 
@@ -27,3 +28,8 @@ extension UITableViewCell {
     }
 }
 
+extension UIImageView {
+    func download(string:String){
+        sd_setImage(with: URL(string: string), placeholderImage: BUMBLE_IMAGE, options: SDWebImageOptions.highPriority, completed: nil)
+    }
+}

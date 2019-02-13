@@ -22,7 +22,7 @@ class ArticleCell: UITableViewCell {
         setup()
         titleLabel.text = self.article.title
         dateLbl.text = self.article.pubDate.ilYA()
-        articleIV.sd_setImage(with: URL(string: self.article.imageUrl), placeholderImage: BUMBLE_IMAGE, options: SDWebImageOptions.highPriority, completed: nil)
+        articleIV.download(string: self.article.imageUrl)
 
     }
 

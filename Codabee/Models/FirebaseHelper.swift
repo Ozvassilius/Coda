@@ -58,7 +58,11 @@ class FirebaseHelper {
     }
 
     func signOut()  {
-        Auth.auth()
+        do {
+            try Auth.auth().signOut() // je l'invoque dans mon appdelegate didfinishLauching pour les tests
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 
 
@@ -76,6 +80,13 @@ class FirebaseHelper {
         _databaseUser.child(id).updateChildValues(userValues)
         userValues = [:]  // ensuite on le vide
 
+    }
+
+    func getUser(_ id: String, completion: ((BeeUser?)->Void)?) {
+        _databaseUser.child(id).observe(.value) { (data) in
+            print("Data utilisateur: \(data)")
+            completion?(BeeUser(data: data))
+        }
     }
 
 }

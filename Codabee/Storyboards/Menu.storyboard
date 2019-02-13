@@ -221,7 +221,13 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="Ufc-oc-iOD"/>
                     </view>
-                    <navigationItem key="navigationItem" id="NlA-iA-sZT"/>
+                    <navigationItem key="navigationItem" id="NlA-iA-sZT">
+                        <barButtonItem key="leftBarButtonItem" title="Retour" id="VdU-qv-UPe">
+                            <connections>
+                                <action selector="backButtonPressed:" destination="vx0-ac-UhN" id="qVR-QV-g6d"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="centerViewConstraint" destination="jbm-2a-qUr" id="QTR-9x-LgH"/>
                         <outlet property="connectButton" destination="Mmi-KH-TFq" id="3MO-pi-nK4"/>

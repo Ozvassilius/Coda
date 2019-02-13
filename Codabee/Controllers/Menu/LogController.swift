@@ -34,4 +34,7 @@ class LogController: UIViewController {
     @IBAction func connectPressed(_ sender: Any) {
     }
     
+    @IBAction func backButtonPressed(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
 }

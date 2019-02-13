@@ -11,15 +11,17 @@ import InteractiveSideMenu
 
 class MenuController: MenuViewController {
 
+    // Menu
     @IBOutlet weak var tableView: UITableView!
+    var items = ["Fils d'actualité","Videos","Forum"]
 
-    // outlets utilisateur
+    // partie utilisateur
     @IBOutlet weak var logButton: UIButton!
     @IBOutlet weak var usernameLbl: UILabel!
     @IBOutlet weak var profileIV: RoundIV!
-    
+    var beeUser : BeeUser?
 
-    var items = ["Fils d'actualité","Videos","Forum"]
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +39,7 @@ class MenuController: MenuViewController {
         // si on a un utilisateur connecté
         if let id = FirebaseHelper().connecte() {
             // utilisateur connecté
+            // donc recupérer beeUser
             logButton.setTitle("Profil", for: .normal)
         } else {
             // on a pas d'utilisateur
@@ -46,8 +49,28 @@ class MenuController: MenuViewController {
     }
     
     @IBAction func logButtonPressed(_ sender: Any) {
+        if beeUser != nil { // si on a un utilisateur
+            // on va vers profil
+            performSegue(withIdentifier: "Profile", sender: beeUser!)
+            // vu qu'il y a un sender on a besoin d'un prepareForSegue
+        } else {
+            // on va vers connexion
+            performSegue(withIdentifier: "Log", sender: nil)
+        }
     }
-    
+
+    // pour passer le beeUser dans la segue Profile
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "Profile"  {
+            if let nav = segue.destination as? Nav {
+                if let first = nav.topViewController as? ProfileController {
+                    first.beeUser = sender as? BeeUser
+                }
+            }
+        }
+    }
+
+
 
 }
 

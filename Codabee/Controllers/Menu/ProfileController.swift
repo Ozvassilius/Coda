@@ -8,25 +8,51 @@
 
 import UIKit
 
-class ProfileController: UIViewController {
+class ProfileController: MoveableController {
 
     var beeUser: BeeUser?
 
+    @IBOutlet weak var profileIV: UIImageView!
+    @IBOutlet weak var usernameTF: UITextField!
+    @IBOutlet weak var usernameLbl: UILabel!
+    @IBOutlet weak var validerButton: UIButton!
+
+    @IBOutlet weak var centerConstraint: NSLayoutConstraint!
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        addTap() // ajoute le gestureRecogniser
 
-        // Do any additional setup after loading the view.
+    }
+
+    override func showKey(notification: Notification) {
+        super.showKey(notification: notification)
+        checkHeight(validerButton, centerConstraint)
+    }
+
+    override func hideKey(notification: Notification) {
+        super.hideKey(notification: notification)
+        animation(0, centerConstraint) // lui redonner sa valeur de base
     }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    @IBAction func backAction(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
     }
-    */
+
+    @IBAction func validateAction(){
+        view.endEditing(true)
+        dismiss(animated: true, completion: nil)
+    }
+
+    @IBAction func logAction(_ sender: Any) {
+        // se deconnecter et dismiss
+    }
+
+    @IBAction func cameraAction(_ sender: Any) {
+    }
+
+    @IBAction func galleryAction(_ sender: Any) {
+    }
 
 }

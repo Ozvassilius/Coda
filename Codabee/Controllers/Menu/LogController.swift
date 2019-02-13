@@ -18,6 +18,7 @@ class LogController: MoveableController {
     @IBOutlet weak var connectButton: UIButton!
     @IBOutlet weak var logView: CustomView!
     @IBOutlet weak var centerViewConstraint: NSLayoutConstraint!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()

@@ -12,6 +12,7 @@ class ProfileController: MoveableController {
 
     var beeUser: BeeUser?
     var canAdd = false
+    var imagePicker = UIImagePickerController()
 
     @IBOutlet weak var profileIV: RoundIV!
     @IBOutlet weak var usernameTF: UITextField!
@@ -22,6 +23,9 @@ class ProfileController: MoveableController {
     override func viewDidLoad() {
         super.viewDidLoad()
         addTap() // ajoute le gestureRecogniser
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = false
+
         if let user = beeUser {
             profileIV.download(string: user.imageUrl)
             usernameTF.placeholder  = user.username
@@ -63,9 +67,15 @@ class ProfileController: MoveableController {
     }
 
     @IBAction func cameraAction(_ sender: Any) {
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            imagePicker.sourceType = .camera
+            present(imagePicker, animated: true, completion: nil)
+        }
     }
 
     @IBAction func galleryAction(_ sender: Any) {
+        imagePicker.sourceType = .photoLibrary
+        present(imagePicker, animated: true, completion: nil)
     }
     @IBAction func usernameEnter(_ sender: UITextField) {
         FirebaseHelper().usernameExists(sender.text) { (bool, string) in
@@ -74,6 +84,26 @@ class ProfileController: MoveableController {
                 self.canAdd = bool
             }
         }
+    }
+
+}
+
+extension ProfileController : UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let originale = info[.originalImage] as? UIImage {
+            self.profileIV.image = originale
+
+            // formatte image pour databse
+            if let data = originale.jpegData(compressionQuality: 0.2) {
+                FirebaseHelper().addProfilePicture(data)
+            }
+        }
+        picker.dismiss(animated: true, completion: nil)
     }
 
 }

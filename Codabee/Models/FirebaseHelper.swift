@@ -110,4 +110,25 @@ class FirebaseHelper {
         }
     }
 
+    // Storage
+    private let _storage = Storage.storage().reference()
+    private var _storageUser: StorageReference {
+        return _storage.child("users")
+    }
+
+
+    func addProfilePicture(_ data: Data) {
+        guard let id = connecte() else { return }
+        let reference = _storageUser.child(id)
+        reference.putData(data, metadata: nil) { (meta, error) in
+            if error == nil {
+                reference.downloadURL(completion: { (url, error) in
+                    if let urlString = url?.absoluteString {
+                        self.updateUser(id, dict: ["imageUrl" : urlString])
+                    }
+                })
+            }
+        }
+    }
+
 }

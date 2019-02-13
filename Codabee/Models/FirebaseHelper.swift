@@ -25,7 +25,7 @@ class FirebaseHelper {
     //Authentification
     func signIn(_ mail: String, _ password: String, result: ((_ bool: Bool?, _ erreur: Error?) -> Void)?)  {
         self.result = result
-        Auth.auth().signIn(withEmail: mail, link: password, completion: completion)
+        Auth.auth().signIn(withEmail: mail, password: password, completion: completion)
     }
 
     func create(_ mail: String, _ password: String, _ username: String, result: ((_ bool: Bool?, _ erreur: Error?) -> Void)?)  {
@@ -48,9 +48,12 @@ class FirebaseHelper {
             self.result?(false, erreur)
         }
         if let id = result?.user.uid { // si on arrive a recup un user
+            // mettre a jour ma base de donnees
+            updateUser(id)
+
             // il faut que je notifie une completion OK
             self.result?(true, nil)
-            // mettre a jour ma base de donnees
+
         }
     }
 
@@ -59,5 +62,20 @@ class FirebaseHelper {
     }
 
 
+    // acces base de donnees
+    private var _database = Database.database().reference()
+    private var _databaseUser : DatabaseReference {
+        return _database.child("users")
+    }
+    private var _databaseQuestion : DatabaseReference {
+        return _database.child("questions")
+    }
+
+    // on cree pas seulement un user, on l'UPDATE, mise a jour si deja créé sinon creation
+    func updateUser(_ id: String){
+        _databaseUser.child(id).updateChildValues(userValues)
+        userValues = [:]  // ensuite on le vide
+
+    }
 
 }

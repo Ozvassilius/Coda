@@ -49,7 +49,7 @@ class FirebaseHelper {
         }
         if let id = result?.user.uid { // si on arrive a recup un user
             // mettre a jour ma base de donnees
-            updateUser(id)
+            updateUser(id,dict: self.userValues )
 
             // il faut que je notifie une completion OK
             self.result?(true, nil)
@@ -76,8 +76,8 @@ class FirebaseHelper {
     }
 
     // on cree pas seulement un user, on l'UPDATE, mise a jour si deja créé sinon creation
-    func updateUser(_ id: String){
-        _databaseUser.child(id).updateChildValues(userValues)
+    func updateUser(_ id: String, dict: [String:String]){
+        _databaseUser.child(id).updateChildValues(dict)
         userValues = [:]  // ensuite on le vide
 
     }
@@ -86,6 +86,27 @@ class FirebaseHelper {
         _databaseUser.child(id).observe(.value) { (data) in
             print("Data utilisateur: \(data)")
             completion?(BeeUser(data: data))
+        }
+    }
+
+    func usernameExists(_ username: String?, completion: ((Bool,String)->Void)?) {
+        if let string = username { // si username n'est pas vide
+            if string.count > 2 { // si l'username a au moins 3 caracteres
+
+                // apres avoir rajouté une regle d'indexOn sur Firebase
+                // on compare notre string (username) a ceux de la base pour voir si il existe deja ou non
+                _databaseUser.queryOrdered(byChild: "username").queryEqual(toValue: string).observeSingleEvent(of: .value) { (data) in
+                    if data.exists() {
+                        completion?(false, "Username deja pris")
+                    } else {
+                        completion?(true,"")
+                    }
+                }
+            } else {
+                completion?(false, "username trop court")
+            }
+        } else {
+            completion?(false, "username vide")
         }
     }
 

@@ -10,6 +10,8 @@ import UIKit
 
 class LogController: MoveableController {
 
+    var canAdd = false
+
     @IBOutlet weak var segmented: UISegmentedControl!
     @IBOutlet weak var emailTF: UITextField!
     @IBOutlet weak var passwordTF: UITextField!
@@ -52,6 +54,12 @@ class LogController: MoveableController {
 
     @IBAction func usernameChanged(_ sender: UITextField) {
         // verifier dans la base de donnees si username existe deja
+        FirebaseHelper().usernameExists(sender.text) { (bool, string) in
+            DispatchQueue.main.async {
+                self.canAdd = true
+                self.usernameErrorLbl.text = string
+            }
+        }
     }
 
     @IBAction func connectPressed(_ sender: Any) {
@@ -65,7 +73,7 @@ class LogController: MoveableController {
                 } else {
                     //ON EST DANS LA PARTIE CREATION
                     // verifie si username existe
-                    if let username = usernameTF.text {
+                    if canAdd, let username = usernameTF.text {
                         FirebaseHelper().create(mail, mdp, username, result: logCompletion)
                     }
                 }

@@ -53,6 +53,7 @@ class MenuController: MenuViewController {
 
         } else {
             // on a pas d'utilisateur
+            self.beeUser = nil
             logButton.setTitle("se connecter", for: .normal)
             usernameLbl.text = ""
         }

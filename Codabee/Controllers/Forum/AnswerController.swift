@@ -10,7 +10,9 @@ import UIKit
 
 class AnswerController: MoveableController {
 
-    var question : Question?
+    var question: Question?
+    var answers: [Answer] = []
+    var imagePicker = UIImagePickerController()
 
     // zone du haut
     @IBOutlet weak var topView: UIView!
@@ -47,6 +49,13 @@ class AnswerController: MoveableController {
                 }
             }
 
+            FirebaseHelper().getAnswer(ref: question!.ref) { (answer) in
+                DispatchQueue.main.async {
+                    self.answers.append(answer)
+                    self.tableView.reloadData()
+                }
+            }
+
         }
 
         // pour faire sortir le clavier quand on clique sur un message
@@ -57,15 +66,39 @@ class AnswerController: MoveableController {
         textView.layer.cornerRadius = 15
         textView.delegate = self
 
+        //
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = false
+
+        tableView.delegate = self
+        tableView.dataSource = self
+
     }
     
 
     @IBAction func cameraPressed(_ sender: Any) {
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            imagePicker.sourceType = .camera
+            present(imagePicker, animated: true, completion: nil)
+        }
     }
     
     @IBAction func libraryPressed(_ sender: Any) {
+        imagePicker.sourceType = .photoLibrary
+        present(imagePicker, animated: true, completion: nil)
     }
+
     @IBAction func validatePressed(_ sender: Any) {
+        if question != nil {
+            if textView.text != "" {
+                FirebaseHelper().saveAnswer(ref: question!.ref, texte: textView.text, image: nil, height: nil)
+                textView.text = ""
+                animateIn(false)
+                animation(40, heightConstraint)
+                view.endEditing(true)
+
+            }
+        }
     }
 
     override func showKey(notification: Notification) {
@@ -106,3 +139,54 @@ extension AnswerController: UITextViewDelegate {
     }
 }
 
+extension AnswerController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[.originalImage] as? UIImage {
+            let imageSize = image.size
+            let heightRatio = imageSize.height / imageSize.width
+            if let data = image.jpegData(compressionQuality: 0.4) {
+                FirebaseHelper().addImageAnswer(data) { (urlString) in
+                    if urlString != nil, self.question != nil {
+                        FirebaseHelper().saveAnswer(ref: self.question!.ref, texte: nil, image: urlString!, height: heightRatio)
+                    }
+                }
+            }
+        }
+        picker.dismiss(animated: true, completion: nil  )
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension AnswerController: UITableViewDelegate, UITableViewDataSource {
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return answers.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if let cell = tableView.dequeueReusableCell(withIdentifier: "AnswerCell") as? AnswerCell {
+            cell.setup(answers[indexPath.row], indexPath.row % 2 == 0)
+            return cell
+        }
+        return UITableViewCell()
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let answer = answers[indexPath.row]
+        var base: CGFloat = 100
+        if answer.texte != nil {
+            let heightText = answer.texte!.height(tableView.frame.width - 16, font: UIFont.systemFont(ofSize: 18))
+            base += heightText
+        }
+
+        if answer.imageHeight != nil {
+            let heightImage = ( tableView.frame.width - 16 ) * answer.imageHeight!
+            base += heightImage
+        }
+
+        return base
+    }
+}
